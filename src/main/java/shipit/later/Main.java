@@ -1,14 +1,17 @@
 package shipit.later;
 
+import java.io.File;
+
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 
 public class Main {
 	public static final String ARG_INDEX_REGEX = "i";
 	public static final String ARG_OUTPUT_PATH = "o";
-	public static final String ARG_ES_HOST = "e";
+	public static final String ARG_ES_HOST = "h";
 	public static final String ARG_ES_PORT = "p";
 	public static final String ARG_ES_CLUSTER = "c";
 
@@ -17,7 +20,7 @@ public class Main {
 		options.addOption(ARG_ES_HOST, true,
 				"(Required) Elasticsearch host name.");
 		options.addOption(ARG_ES_PORT, true,
-				"(Optional) Elasticsearch port. Default: 9200");
+				"(Optional) Elasticsearch port. Default: 9300");
 		options.addOption(ARG_ES_CLUSTER, true,
 				"(Optional) Elasticsearch cluster name. Default: elasticsearch");
 		options.addOption(ARG_INDEX_REGEX, true,
@@ -28,18 +31,26 @@ public class Main {
 		CommandLineParser parser = new BasicParser();
 		CommandLine cmd = parser.parse(options, args);
 		String host = cmd.getOptionValue(ARG_ES_HOST);
-		int port = Integer.valueOf(cmd.getOptionValue(ARG_ES_PORT, "9200"));
+		int port = Integer.valueOf(cmd.getOptionValue(ARG_ES_PORT, "9300"));
 		String cluster = cmd.getOptionValue(ARG_ES_CLUSTER, "elasticsearch");
 		String regex = cmd.getOptionValue(ARG_INDEX_REGEX, ".*");
-		String outputPath = cmd.getOptionValue(ARG_INDEX_REGEX, "/tmp/elastic");
+		String outputPath = cmd.getOptionValue(ARG_OUTPUT_PATH, "/tmp/elastic");
 
-		EsDownloader downloader = new EsDownloader(host, port, cluster);
-
-		try {
-			downloader.downloadAll(regex, outputPath);
-		} catch (Exception e) {
-			throw new RuntimeException("Failed.");
+		if (host == null || host.isEmpty()) {
+			HelpFormatter formatter = new HelpFormatter();
+			formatter.printHelp("es-downloader -[OPTION] [value]", options);
+			return;
 		}
-	}
 
+		ElasticSearchClient es = new ElasticSearchClient(host, port, cluster);
+		EsDownloader downloader = new EsDownloader(es.createClient());
+
+		File outputDir = new File(outputPath);
+		if (!outputDir.exists()) {
+			outputDir.mkdirs();
+			System.out.println("Created output path: " + outputPath);
+		}
+
+		downloader.download(regex, outputPath);
+	}
 }
