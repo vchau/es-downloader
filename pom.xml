@@ -9,8 +9,8 @@
 
 	<scm>
 		<url>https://github.com/vchau/es-downloader</url>
-		<connection>scm:git:https://github.com/vchau/es-downloader</connection>
-		<developerConnection>scm:git:https://github.com/vchau/es-downloader</developerConnection>
+		<connection>scm:git:ssh://github.com/vchau/es-downloader</connection>
+		<developerConnection>scm:git:ssh://github.com/vchau/es-downloader</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
 	<properties>
