@@ -35,4 +35,4 @@ usage: es-downloader -[OPTION] [value]
 > ./es-downloader -h elasticsearch.somewhere.com -p 9300 -c elasticsearch -i myindex.*
 ```
 
-Enjoy. :shipit:
+Enjoy. :shipit:.
